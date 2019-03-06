@@ -776,7 +776,7 @@ int main() {
 		cout << i << endl;
 		for (int j = 0; j < H; j++) {
 			Vector pixelColor;
-			for (int k=0; k<30; k++)
+			for (int k=0; k<100; k++)
 			{
 				double r1 = U(e);
 				double r2 = U(e);

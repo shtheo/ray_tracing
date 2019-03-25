@@ -115,7 +115,7 @@ Vector getColor(Ray& r, double& epsilon, int bounce, double n_sphere, double n_a
 
   
 
-- <p style="text-align: justify"><b>Triangle</b> : il s'agit d'abord de considérer le plan qui contient le triangle. Le <i>t</i> calculé ci-dessous correspond à l'intersection entre le rayon et le plan. Il est de tel sorte que le point d'intersection P se mette sous la forme <i>P = C + t * u</i>. Une fois ce point d'intersection obtenu, il s'agit de calculer les coordonnées barycentriques de P par rapport au triangle. Il s'agit de <i>alpha, beta, gamma</i> tels que leur somme fait 1 et que <i>P = alpha * A + beta * B + gamma * C</i>. Ces coordonnées barycentriques s'obtiennent en résolvant un systèmes d'équations linéaires. P intersecte le triangle si et seulement si ces trois coordonnées sont plus petites que 1.</p>
+- <p style="text-align: justify"><b>Triangle</b> : il s'agit d'abord de considérer le plan qui contient le triangle. Le <i>t</i> calculé ci-dessous correspond à l'intersection entre le rayon et le plan. Il est de tel sorte que le point d'intersection P se mette sous la forme <i>P = C + t * u</i>. Une fois ce point d'intersection obtenu, il s'agit de calculer les coordonnées barycentriques de P par rapport au triangle. Il s'agit de <i>alpha, beta, gamma</i> tels que leur somme fait 1 et que <i>P = alpha * A + beta * B + gamma * C</i>. Ces coordonnées barycentriques s'obtiennent en résolvant un système d'équations linéaires. P intersecte le triangle si et seulement si ces trois coordonnées sont plus petites que 1.</p>
 
   ```cpp
   virtual bool intersect(const Ray& r, Vector& P, Vector& N) {
@@ -149,7 +149,7 @@ Vector getColor(Ray& r, double& epsilon, int bounce, double n_sphere, double n_a
 
 <img width="50%" src="images\ombre_nette.png">
 
-<p style="text-align: justify">Nous pouvons observer que les ombres sont très nettement marquées, ce qui n'est pas tout à fait le cas dans la réalité. Pour cela, nous allons mettre en œuvre l'équation du rendu. Un rayon lorsqu'il arrive sur une surface, se réfléchie dans des directions aléatoires autour de la normale. Il s'agit d'une loi normale centrée autour de cette normale. L'équation du rendu, indique que la couleur en un point correspond à émissivité de la surface (sa couleur intrinsèque, ce qui a été calculé jusqu'à maintenant) plus les couleurs des multiples rayons réfléchis et qui aller taper d'autres surface. Ces couleurs sont multipliées par l'albedo de la surface actuelle. Ainsi, lors de la rencontre de chaque surface, nous allons tirer aléatoirement un rayon pour ajouter une composante indirecte à la lumière. Notons, que nous ne tirerons qu'un seul rayon alors que l'équation du mouvement stipule d'en tirer plusieurs. Si nous faisons cela, la complexiter va exploser. Nous contournerons ce problème en lançant plusieurs rayons depuis chaque pixels de la caméra.</p>
+<p style="text-align: justify">Nous pouvons observer que les ombres sont très nettement marquées, ce qui n'est pas tout à fait le cas dans la réalité. Pour cela, nous allons mettre en œuvre l'équation du rendu. Un rayon lorsqu'il arrive sur une surface, se réfléchie dans des directions aléatoires autour de la normale. Il s'agit d'une loi normale centrée autour de cette normale. L'équation du rendu, indique que la couleur en un point correspond à émissivité de la surface (sa couleur intrinsèque, ce qui a été calculé jusqu'à maintenant) plus les couleurs des multiples rayons réfléchis et qui aller taper d'autres surface. Ces couleurs sont multipliées par l'albedo de la surface actuelle. Ainsi, lors de la rencontre de chaque surface, nous allons tirer aléatoirement un rayon pour ajouter une composante indirecte à la lumière. Notons, que nous ne tirerons qu'un seul rayon alors que l'équation du mouvement stipule d'en tirer plusieurs. Si nous faisons cela, la complexité va exploser. Nous contournerons ce problème en lançant plusieurs rayons depuis chaque pixel de la caméra.</p>
 
 Le code suivant permet de tirer ce rayon :
 
@@ -179,11 +179,11 @@ En faisant ceci et en considérant un nombre maximal de rebond à 5 et 30 rayons
 
 ## Anti-aliasing et flou artistique
 
-En zoomant, nous nous rendons compte que les contours des sphères sont pixélisées :
+En zoomant, nous nous rendons compte que les contours des sphères sont pixélisés :
 
 <img width="50%" src="images\sans-anti-aliasing.PNG">
 
-<p style="text-align: justify">Le problème vient du fait que le lancé de rayon est déterministe, du moins au début. En effet, le rayon part toujours du milieu du pixel. Le code suivant permet de choisir de manière aléatoire, la position dans le pixel. L'aléatoire est en réalité une loi normale centrée en le milieu du pixel.</p>
+<p style="text-align: justify">Le problème vient du fait que le lancer de rayon est déterministe, du moins au début. En effet, le rayon part toujours du milieu du pixel. Le code suivant permet de choisir de manière aléatoire, la position dans le pixel. L'aléatoire est en réalité une loi normale centrée en le milieu du pixel.</p>
 
 ```cpp
 double r1 = U(e);
@@ -218,15 +218,15 @@ Comme tout à leur, on génère une loi centrée en le centre de la caméra.
 
 <img src="images/sans-flou.png" style="display:inline-block" width="48%"><img src="images/avec_flou.png" style="display:inline-block" width="48%">
 
-<p style="text-align: justify">Le résultat ci-dessus montre bien à gauche une image sans utilisation du flou, et à droite une image avec son utilisation. </p>
+<p style="text-align: justify">Le résultat ci-dessus montre bien à gauche une image sans utilisation du flou, et à droite une image avec son utilisation. La boule verte est plus floue sur l'image de droite que celle de gauche. </p>
 
 ## Le maillage
 
-<p style="text-align: justify">Nous l'avons défini tout à leur, le maillage est un ensemble de plusieurs triangles. Néanmoins, si nous devions tester l'intersection avec chacun des triangles pour tester l'intersection globale, cela prendrai énormément de temps. </p>
+<p style="text-align: justify">Nous l'avons défini tout à leur, le maillage est un ensemble de plusieurs triangles. Néanmoins, si nous devions tester l'intersection avec chacun des triangles pour tester l'intersection globale, cela prendrait énormément de temps. </p>
 
-<p style="text-align: justify">L'idée est de définir un arbre de boites englobantes recouvrant entièreté du maillage. Une boite englobante est un objet <i>BBox</i>. C'est un parallélépipède rectangle parallèle aux axes (x, y, z). Il est donc défini par deux vecteurs <i>bmin</i> et <i>bmax</i> le point minimal (resp. maximal) sur les trois axes. L'arbre de boites englobantes est un objet <i>BVHNode</i> défini récursivement. Il contient un fils gauche <i> fg</i> et un fils droit <i>fd</i>. Chaque <i>BVHNode</i> contient une boîte englobante <i>b</i>. Il indique également dans la liste des traingles un <i>début</i> et une <i>fin</i>.</p>
+<p style="text-align: justify">L'idée est de définir un arbre de boites englobantes recouvrant entièreté du maillage. Une boite englobante est un objet <i>BBox</i>. C'est un parallélépipède rectangle parallèle aux axes (x, y, z). Il est donc défini par deux vecteurs <i>bmin</i> et <i>bmax</i> le point minimal (resp. maximal) sur les trois axes. L'arbre de boites englobantes est un objet <i>BVHNode</i> défini récursivement. Il contient un fils gauche <i> fg</i> et un fils droit <i>fd</i>. Chaque <i>BVHNode</i> contient une boîte englobante <i>b</i>. Il indique également dans la liste des triangles un <i>début</i> et une <i>fin</i>.</p>
 
-<p style="text-align: justify">Cet arbre va être construit de la manière suivante, on initialise la racine de l'arbre à la boite englobante en prenant simplement le maximum et le minimum des points composant le maillage. <i>debut</i> et <i>fin</i> sont initialisé à 0 et à l'indice de fin de la liste. A chaque étape, on va analyser dans quelle dimension la boite est la plus grande et nous allons définir un plan sécant selon cette dimension. A l'aide d'un pivot, nous allons trier la liste entre <i>debut</i> et <i>fin</i> de telle sorte qu'à gauche du pivot, les barycentre des triangles correspondants soient d'un côté du plan et les autres de l'autre. Puis, si le pivot est différent du début et de la fin, nous allons rappeler ce processus entre <i>debut</i> et <i>pivot</i> et entre <i>pivot</i> et <i>fin</i>. C'est la fonction <i>build_node</i> qui fait ce travail là :</p>
+<p style="text-align: justify">Cet arbre va être construit de la manière suivante, on initialise la racine de l'arbre à la boite englobante en prenant simplement le maximum et le minimum des points composant le maillage. <i>debut</i> et <i>fin</i> sont initialisé à 0 et à l'indice de fin de la liste. A chaque étape, on va analyser dans quelle dimension la boite est la plus grande et nous allons définir un plan sécant selon cette dimension. A l'aide d'un pivot, nous allons trier la liste entre <i>debut</i> et <i>fin</i> de telle sorte qu'à gauche du pivot, les barycentres des triangles correspondants soient d'un côté du plan et les autres de l'autre. Puis, si le pivot est différent du début et de la fin, nous allons rappeler ce processus entre <i>debut</i> et <i>pivot</i> et entre <i>pivot</i> et <i>fin</i>. C'est la fonction <i>build_node</i> qui fait ce travail-là :</p>
 
 ```cpp
 void build_node(BVHNode& node) {
@@ -255,7 +255,7 @@ void build_node(BVHNode& node) {
 }
 ```
 
-Maintenant que nous avons créé ce <i>BVHNode</i>, il faut s'en servir afin de redéfinir la routine d'intersection. l'idée très simplement est la suivante : si un rayon intersecte la <i>BBox </i>de la racine alors nous allons tester l'intersection si le fils gauche et le fils droit, sinon, on ne fait rien. Si'il y a intersection avec les <i>BBox</i> liées aux feuilles de l'arbre, alors on ajoute les triangles dans une liste. Cette liste constituera les triangles avec lesquels l'intersection doit être testée à la main. La méthode <i>intersect</i> de <i>BVHNode</i> va créer la liste des triangles alors que <i>intersect</i> de <i>Geometry</i> va appeler cette première méthode avant de faire le test avec chacun des triangles.
+<p style="text-align: justify">Maintenant que nous avons créé ce <i>BVHNode</i>, il faut s'en servir afin de redéfinir la routine d'intersection. L'idée très simplement est la suivante : si un rayon intersecte la <i>BBox </i>de la racine alors nous allons tester l'intersection si le fils gauche et le fils droit, sinon, on ne fait rien. S'il y a intersection avec les <i>BBox</i> liées aux feuilles de l'arbre, alors on ajoute les triangles dans une liste. Cette liste constituera les triangles avec lesquels l'intersection doit être testée à la main. La méthode <i>intersect</i> de <i>BVHNode</i> va créer la liste des triangles alors que <i>intersect</i> de <i>Geometry</i> va appeler cette première méthode avant de faire le test avec chacun des triangles.</p>
 
 ```cpp
 // pour BVHNode
@@ -274,4 +274,22 @@ bool intersect(const Ray& r, std::vector<BVHNode*>& leaves) {
 }
 ```
 
-Cette action divise les temps de calcul de mon ordinateur par 7. Je mets 5 minutes avec 30 rayons et 5 rebonds. 
+Cette action divise les temps de calcul de mon ordinateur par 7. Voici donc ce que j'obtiens avec 80 rayons et 5 rebonds : 
+
+<img src="images/fille.png" width="50%">
+
+## Correction Gamma
+
+<p style="text-align: justify">L'image ci-dessus a été obtenue avec une correction gamma, c'est a dire que l'on a mis à la puissance 0.45 chaque composante de la couleur. Cela permet de rééquilibrer les niveaux de couleur. Voici donc les lignes de code en rajoutant la correction Gamma :</p>
+
+```cpp
+image[(i*W + j) * 3 + 0] = std::min(255., std::pow(pixelColor.x, 0.45));
+image[(i*W + j) * 3 + 1] = std::min(255., std::pow(pixelColor.y, 0.45));
+image[(i*W + j) * 3 + 2] = std::min(255., std::pow(pixelColor.z, 0.45));
+```
+
+## Synthèse
+
+Voici une image qui contient l'ensemble des sujets abordés : surfaces spéculaires, transparentes, les ombres, l'équation du rendu, le maillage, le flou, ... 
+
+![test](images\final.png)

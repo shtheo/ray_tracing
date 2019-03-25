@@ -745,19 +745,21 @@ int main() {
 	// Features
 	bool gamma_correction = true;
 	bool anti_aliasing = true;
-	bool soft_focus = false;
+	bool soft_focus = true;
 	int nb_rayon_per_pixel = 80;
 	int max_bounce = 5;
 
-	Sphere s1(Vector(-15, 0, 0), 13, Vector(1., 1., 1.), false, false);
-	Sphere s2(Vector(15, 0, -20), 15, Vector(0., 1., 0.), false, false);
+	Sphere s1(Vector(-15, -2, 0), 8, Vector(1., 1., 1.), false, false);
+	Sphere s2(Vector(25, 0, -50), 8, Vector(0., 1., 0.), false, false);
 	Sphere s3(Vector(0, -1000, 0), 1000 - 10, Vector(0., 0., 1.), false, false); //sol
 	Sphere s4(Vector(0, 0, -1050), 1000 - 60, Vector(1., 0., 1.), false, false); //fond
 	Sphere s5(Vector(0, 0, 1000), 1000 - 60, Vector(1., 1., 0.), false, false); //invisible
 	Sphere s6(Vector(1000, 0, 0), 1000 - 60, Vector(1., 0., 0.), false, false); //droite
 	Sphere s7(Vector(-1000, 0, 0), 1000 - 60, Vector(0., 1., 0.), false, false); //gauche
 	Sphere s8(Vector(0, 1000, 0), 1000 - 60, Vector(1., 1., 1.), false, false); //plafond
-	Geometry g1(Vector(0., 0., 0.), 20, Vector(1, 1, 1), false, false);
+	Sphere s9(Vector(-15, 20, 0), 7, Vector(1., 1., 1.), true, false);
+	Sphere s10(Vector(15, 20, 0), 7, Vector(0., 1., 0.), false, true);
+	Geometry g1(Vector(0., -10., 0.), 20, Vector(1, 1, 1), false, false);
 	g1.readOBJ("cadnav.com_model/Model_D0515019/Beautiful Girl.obj", false);
 	g1.add_textures("cadnav.com_model/Model_D0515019/visage.bmp");
 	g1.add_textures("cadnav.com_model/Model_D0515019/cheveux.bmp");
@@ -766,8 +768,8 @@ int main() {
 	g1.add_textures("cadnav.com_model/Model_D0515019/accessoires.bmp");
 	g1.add_textures("cadnav.com_model/Model_D0515019/mains.bmp");
 	Scene scene(I, L);
-	//scene.addObject(&s1);
-	//scene.addObject(&s2);
+	scene.addObject(&s1);
+	scene.addObject(&s2);
 	scene.addObject(&g1);
 	scene.addObject(&s3);
 	scene.addObject(&s4);
@@ -775,6 +777,8 @@ int main() {
 	scene.addObject(&s6);
 	scene.addObject(&s7);
 	scene.addObject(&s8);
+	scene.addObject(&s9); 
+	scene.addObject(&s10);
 	scene.addObject(&L);
 
 

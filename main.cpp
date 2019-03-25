@@ -667,7 +667,7 @@ public:
 			}
 			else if (S->light)
 			{
-				pixelColor = Vector(0, 0, 0);
+				pixelColor = Vector(1., 1., 1.);
 			}
 			else
 			{
@@ -717,9 +717,10 @@ public:
 	std::vector<Object*> objects;
 	int I;
 	Sphere L;
-};
+	};
 
 int main() {
+	// Image
 	int W = 512;
 	int H = 512;
 
@@ -734,22 +735,29 @@ int main() {
 	L.light = true;
 	double I = 214000000;
 
-	// Noise
+	// Avoid noise
 	double epsilon = 0.01;
 
 	// Sphere indice
 	double n_sphere = 1.4;
 	double n_air = 1.;
 
-	Sphere s1(Vector(-15, 0, 0), 5, Vector(1., 1., 1.), true, false);
-	Sphere s2(Vector(15, 0, 0), 5, Vector(0., 1., 0.), false, true);
+	// Features
+	bool gamma_correction = true;
+	bool anti_aliasing = true;
+	bool soft_focus = false;
+	int nb_rayon_per_pixel = 80;
+	int max_bounce = 5;
+
+	Sphere s1(Vector(-15, 0, 0), 13, Vector(1., 1., 1.), false, false);
+	Sphere s2(Vector(15, 0, -20), 15, Vector(0., 1., 0.), false, false);
 	Sphere s3(Vector(0, -1000, 0), 1000 - 10, Vector(0., 0., 1.), false, false); //sol
 	Sphere s4(Vector(0, 0, -1050), 1000 - 60, Vector(1., 0., 1.), false, false); //fond
 	Sphere s5(Vector(0, 0, 1000), 1000 - 60, Vector(1., 1., 0.), false, false); //invisible
 	Sphere s6(Vector(1000, 0, 0), 1000 - 60, Vector(1., 0., 0.), false, false); //droite
 	Sphere s7(Vector(-1000, 0, 0), 1000 - 60, Vector(0., 1., 0.), false, false); //gauche
 	Sphere s8(Vector(0, 1000, 0), 1000 - 60, Vector(1., 1., 1.), false, false); //plafond
-	Geometry g1(Vector(0., -5., 5.), 15, Vector(1, 1, 1), false, false);
+	Geometry g1(Vector(0., 0., 0.), 20, Vector(1, 1, 1), false, false);
 	g1.readOBJ("cadnav.com_model/Model_D0515019/Beautiful Girl.obj", false);
 	g1.add_textures("cadnav.com_model/Model_D0515019/visage.bmp");
 	g1.add_textures("cadnav.com_model/Model_D0515019/cheveux.bmp");
@@ -758,8 +766,8 @@ int main() {
 	g1.add_textures("cadnav.com_model/Model_D0515019/accessoires.bmp");
 	g1.add_textures("cadnav.com_model/Model_D0515019/mains.bmp");
 	Scene scene(I, L);
-	scene.addObject(&s1);
-	scene.addObject(&s2);
+	//scene.addObject(&s1);
+	//scene.addObject(&s2);
 	scene.addObject(&g1);
 	scene.addObject(&s3);
 	scene.addObject(&s4);
@@ -776,28 +784,48 @@ int main() {
 		cout << i << endl;
 		for (int j = 0; j < H; j++) {
 			Vector pixelColor;
-			for (int k=0; k<100; k++)
+			for (int k=0; k< nb_rayon_per_pixel; k++)
 			{
-				double r1 = U(e);
-				double r2 = U(e);
-				double r3 = U(e);
-				double r4 = U(e);
-				double offsetx = cos(2 * M_PI*r1)*sqrt(-2*log(r2))*0.5;
-				double offsety = sin(2 * M_PI*r1)*sqrt(-2 * log(r2))*0.5;
-				double offsetx_C = cos(2 * M_PI*r3)*sqrt(-2 * log(r4));
-				double offsety_C = sin(2 * M_PI*r3)*sqrt(-2 * log(r4));
-				Vector CPrime = Vector(C.x + offsetx_C, C.y + offsety_C, C.z);
-				Vector u = Vector(j - W / 2 + offsetx, -i + H / 2 + offsety, -W / (2 * tan(fov / 2)));
+				Vector u;
+				if (anti_aliasing)
+				{
+					double r1 = U(e);
+					double r2 = U(e);
+					double offsetx = cos(2 * M_PI*r1)*sqrt(-2 * log(r2))*0.5;
+					double offsety = sin(2 * M_PI*r1)*sqrt(-2 * log(r2))*0.5;
+					u = Vector(j - W / 2 + offsetx, -i + H / 2 + offsety, -W / (2 * tan(fov / 2)));
+				}
+				else {
+					u = Vector(j - W / 2, -i + H / 2, -W / (2 * tan(fov / 2)));
+				}
 				u.normalize();
-				Vector focal_P = C + focal_distance * u;
-				Vector uPrime = focal_P - CPrime;
-				uPrime.normalize();
+				Vector uPrime = u;
+				Vector CPrime = C;
+				if (soft_focus)
+				{
+					double r3 = U(e);
+					double r4 = U(e);
+					double offsetx_C = cos(2 * M_PI*r3)*sqrt(-2 * log(r4));
+					double offsety_C = sin(2 * M_PI*r3)*sqrt(-2 * log(r4));
+					CPrime = Vector(C.x + offsetx_C, C.y + offsety_C, C.z);
+					Vector focal_P = C + focal_distance * u;
+					uPrime = focal_P - CPrime;
+					uPrime.normalize();
+				}	
 				Ray r = Ray(CPrime, uPrime);
-				pixelColor = pixelColor + scene.getColor(r, epsilon, 5, n_sphere, n_air);
+				pixelColor = pixelColor + scene.getColor(r, epsilon, max_bounce, n_sphere, n_air);
 			}
-			image[(i*W + j) * 3 + 0] = std::min(255., std::pow(pixelColor.x, 0.45));
-			image[(i*W + j) * 3 + 1] = std::min(255., std::pow(pixelColor.y, 0.45));
-			image[(i*W + j) * 3 + 2] = std::min(255., std::pow(pixelColor.z, 0.45));
+			if (gamma_correction)
+			{
+				image[(i*W + j) * 3 + 0] = std::min(255., std::pow(pixelColor.x, 0.45));
+				image[(i*W + j) * 3 + 1] = std::min(255., std::pow(pixelColor.y, 0.45));
+				image[(i*W + j) * 3 + 2] = std::min(255., std::pow(pixelColor.z, 0.45));
+			}
+			else {
+				image[(i*W + j) * 3 + 0] = std::min(255., pixelColor.x);
+				image[(i*W + j) * 3 + 1] = std::min(255., pixelColor.y);
+				image[(i*W + j) * 3 + 2] = std::min(255., pixelColor.z);
+			}
 		}
 	}
 	cout << "Writing image" << endl;

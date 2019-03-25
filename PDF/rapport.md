@@ -147,7 +147,7 @@ Vector getColor(Ray& r, double& epsilon, int bounce, double n_sphere, double n_a
 
 <p style="text-align: justify">Si l'on prend l'algorithme le plus naïf qu'il soit : si l'on touche une surface qui n'est ni transparente, ni un miroir, on renvoie la couleur de l'objet divisée par la distance au carré à la source de lumière sauf si le point est dans l'ombre. Un point est dans l'ombre si le rayon partant de ce point vers la source ponctuelle de lumière intersecte un objet. Et que cette intersection a lieu entre le point et la source de lumière. En codant les choses de cette manière, nous allons avoir un résultat comme suit :</p>
 
-<img width="50%" src="images\ombre_nette.png">
+<img width="50%" src="..\images\ombre_nette.png">
 
 <p style="text-align: justify">Nous pouvons observer que les ombres sont très nettement marquées, ce qui n'est pas tout à fait le cas dans la réalité. Pour cela, nous allons mettre en œuvre l'équation du rendu. Un rayon lorsqu'il arrive sur une surface, se réfléchie dans des directions aléatoires autour de la normale. Il s'agit d'une loi normale centrée autour de cette normale. L'équation du rendu, indique que la couleur en un point correspond à émissivité de la surface (sa couleur intrinsèque, ce qui a été calculé jusqu'à maintenant) plus les couleurs des multiples rayons réfléchis et qui aller taper d'autres surface. Ces couleurs sont multipliées par l'albedo de la surface actuelle. Ainsi, lors de la rencontre de chaque surface, nous allons tirer aléatoirement un rayon pour ajouter une composante indirecte à la lumière. Notons, que nous ne tirerons qu'un seul rayon alors que l'équation du mouvement stipule d'en tirer plusieurs. Si nous faisons cela, la complexité va exploser. Nous contournerons ce problème en lançant plusieurs rayons depuis chaque pixel de la caméra.</p>
 
@@ -171,17 +171,17 @@ N est la normale et la fonction <i>create_T1(N)</i> permet de créer un vecteur 
 
 En faisant ceci et en considérant un nombre maximal de rebond à 5 et 30 rayons, nous obtenons ceci :
 
-<img width="50%" src="images\ombres_portees.png">
+<img width="50%" src="..\images\ombres_portees.png">
 
 <p style="text-align: justify">Les ombres sont déjà moins marquées. Pour faire un rendu encore plus réaliste, nous pouvons considérer une source de lumière sphérique. Ainsi, nous pouvons tirer aléatoirement un point sur cette surface grâce à la fonction <i>getRandomPointLight</i> et réaliser le même travail qu'avec la source ponctuelle avec ce point tiré au sort. L'effet sera d'adoucir les bordures des ombres :</p>
 
-<img width="50%" src="images\lumiere_sphere.png">
+<img width="50%" src="..\images\lumiere_sphere.png">
 
 ## Anti-aliasing et flou artistique
 
 En zoomant, nous nous rendons compte que les contours des sphères sont pixélisés :
 
-<img width="50%" src="images\sans-anti-aliasing.PNG">
+<img width="50%" src="..\images\sans-anti-aliasing.PNG">
 
 <p style="text-align: justify">Le problème vient du fait que le lancer de rayon est déterministe, du moins au début. En effet, le rayon part toujours du milieu du pixel. Le code suivant permet de choisir de manière aléatoire, la position dans le pixel. L'aléatoire est en réalité une loi normale centrée en le milieu du pixel.</p>
 
@@ -195,11 +195,11 @@ u = Vector(j - W / 2 + offsetx, -i + H / 2 + offsety, -W / (2 * tan(fov / 2)));
 
 Voici donc le résultat obtenu :
 
-<img width="50%" src="images\avec-anti-aliasing.PNG">
+<img width="50%" src="..\images\avec-anti-aliasing.PNG">
 
 <p style="text-align: justify">Le flou artistique vient de l'optique géométrique. Les rayons qui partent de la caméra sont parallèles entre eux, donc l'image ne sera nette qu'au niveau de la distance focale. Comme le montre le schéma ci-dessous :</p>
 
-<img src="images\soft-focus.png" width="50%">
+<img src="..\images\soft-focus.png" width="50%">
 
 Il faut donc bouger légèrement la caméra pour avoir ce flou. Voici le code permettant de le faire :
 
@@ -216,7 +216,7 @@ uPrime.normalize();
 
 Comme tout à leur, on génère une loi centrée en le centre de la caméra. 
 
-<img src="images/sans-flou.png" style="display:inline-block" width="48%"><img src="images/avec_flou.png" style="display:inline-block" width="48%">
+<img src="..\images/sans-flou.png" style="display:inline-block" width="48%"><img src="../images/avec_flou.png" style="display:inline-block" width="48%">
 
 <p style="text-align: justify">Le résultat ci-dessus montre bien à gauche une image sans utilisation du flou, et à droite une image avec son utilisation. La boule verte est plus floue sur l'image de droite que celle de gauche. </p>
 
@@ -276,7 +276,7 @@ bool intersect(const Ray& r, std::vector<BVHNode*>& leaves) {
 
 Cette action divise les temps de calcul de mon ordinateur par 7. Voici donc ce que j'obtiens avec 80 rayons et 5 rebonds : 
 
-<img src="images/fille.png" width="50%">
+<img src="..\images/fille.png" width="50%">
 
 ## Correction Gamma
 
@@ -292,4 +292,4 @@ image[(i*W + j) * 3 + 2] = std::min(255., std::pow(pixelColor.z, 0.45));
 
 Voici une image qui contient l'ensemble des sujets abordés : surfaces spéculaires, transparentes, les ombres, l'équation du rendu, le maillage, le flou, ... 
 
-![test](images\final.png)
+![test](..\images\final.png)
